@@ -1,202 +1,67 @@
-package com.test.swiggy;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
+package test.moneyview.com;
 
 public class Question1 {
+
 	
-	public static void PrintMaxPrimeDigitsNum() throws IOException{
-		
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        //PrintWriter wr = new PrintWriter(System.out);
-        long inputData = Long.parseLong(br.readLine());
-        long digit = 0;
-        long temp;
-        boolean chkDigit = true;
-        long max = 0;
-        /**LargetNumber */
-        for(long i = 2; i <= inputData; i++){
-        	//Dividing the number in its digits and checking if all digits are prime
-        	temp = i;
-        	while(temp != 0){
-        		digit = temp%10;
-        		
-        		//System.out.println("digit: "+digit);
-        		//System.out.println("temp: "+temp);
-        		//check if prime
-        		if(!isPrime(digit)){
-        			//System.out.println("broke");
-        			break;
-        		};
-        		temp = temp/10;
-        	}
-        	if(i >= 10 && temp == 0 && i > max){
-        			max = i;
-        			//System.out.println("max:"+max);
-        	}
-        	else if(temp == 0 && i > max && isPrime(digit)){
-        			max = i;
-        	}
-        }
-         System.out.println(max);
+	bool modularSum(int arr[], int n, int m)
+	{
+		if (n > m)
+			return true;
 
-         br.close();
+		bool DP[m];
+		memset(DP, false, m);
+
+		// we'll loop through all the elements of arr[]
+		for (int i=0; i<n; i++)
+		{
+			// anytime we encounter a sum divisible
+			// by m, we are done
+			if (DP[0])
+				return true;
+
+			bool temp[m];
+			memset(temp,false,m);
+
+
+			for (int j=0; j<m; j++)
+			{
+				// if an element is true in DP table
+				if (DP[j] == true)
+				{
+					if (DP[(j+arr[i]) % m] == false)
+
+						// We update it in temp and update
+						// to DP once loop of j is over
+						temp[(j+arr[i]) % m] = true;
+				}
+			}
+
+			// Updating all the elements of temp
+			// to DP table since iteration over
+			// j is over
+			for (int j=0; j<m; j++)
+				if (temp[j])
+					DP[j] = true;
+
+
+			// Also since arr[i] is a single element
+			// subset, arr[i]%m is one of the possible
+			// sum
+			DP[arr[i]%m] = true;
+		}
+
+		return DP[0];
 	}
 
-	private static boolean isPrime(long digit) {
-		
-		Map<Long, Boolean> mapData = new HashMap<>();
-		mapData.put((long) 1, false);
-		mapData.put((long) 2, true);
-		mapData.put((long) 3, true);
-		mapData.put((long) 4, false);
-		mapData.put((long) 5, true);
-		mapData.put((long) 6, false);
-		mapData.put((long) 7, true);
-		mapData.put((long) 8, false);
-		mapData.put((long) 9, false);
-		mapData.put((long) 0, false);
-				
-		return mapData.get(digit);
-	}
+	public static void main(String[] args) {
 	
-	public static void PrintMaxPrimeDigitsNumThreads() throws NumberFormatException, IOException{
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        //PrintWriter wr = new PrintWriter(System.out);
-        Long inputData = Long.parseLong(br.readLine());
-        
-        //threads to divide the numbers in 1000s of 5 threads
-        ThreadPoolExecutor executorOne = (ThreadPoolExecutor) Executors.newFixedThreadPool(2);
-        List<Future<Long>> resultList = new ArrayList<>();
-        
-        
-        //Divide data in 5 threads
-        long data = inputData/5;
-        
-        long maxNum = 0;
-        System.out.println("here");
-        for(long i =2; i <= inputData; i = i+ data){
-        	System.out.println("startsttt");
-        	System.out.println("data" +
-        			":"+ (i-2+data));
-        	CheckForPrimes chkPrimes = new CheckForPrimes(i-2+data);
-        	
-        	Future<Long> chkPrime = executorOne.submit(chkPrimes);
-        	//If all digit is prime, we return the data in future
-        	//Now, add in list if maximum to the existing
-				resultList.add(chkPrime);
-				
-			       	
-        }
-        
-        	if(!resultList.isEmpty()){
-        		for(Future<Long> future : resultList)
-                {
-                      try
-                      {
-                  		System.out.println(future.get());
-              			maxNum = future.get();
-                      }
-                      catch (InterruptedException | ExecutionException e)
-                      {
-                          e.printStackTrace();
-                      }
-                  }
-        	}
-        	executorOne.shutdown();
-        
-        System.out.println(maxNum);
-        
-        
-        
-	}
+		int arr[] = {1, 7};
+		int n = sizeof(arr)/sizeof(arr[0]);
+		int m = 5;
 
-}
+		modularSum(arr, n, m) ? cout << "YESn" :
+								cout << "NOn";
 
-
-class CheckForPrimes implements Callable<Long>
-{
- 
-    private Long inputData;
- 
-    public CheckForPrimes(Long number) {
-        this.inputData = number;
-    }
- 
-    @Override
-    public Long call() throws Exception {
-        long result = 0;
-        
-        ThreadPoolExecutor executorTwo = (ThreadPoolExecutor) Executors.newFixedThreadPool(2);
-        List<Future<Boolean>> resultList = new ArrayList<>();
-        //For bigger numbers, divide digits for prime checks
-        int[] digits;
-        
-        
-        long digit = 0;
-        long temp;
-        boolean chkDigit = true;
-        long max = 0;
-        /**LargetNumber */
-        for(long i = 2; i <= inputData; i++){
-        	//Dividing the number in its digits and checking if all digits are prime
-        	temp = i;
-        	List<Long> digitsList = new ArrayList<>();
-        	long start = System.currentTimeMillis();
-        	PrintWriter wr = new PrintWriter(System.out);
-        	wr.println(start);
-        	while(temp != 0){
-        		digit = temp%10;
-        		
-        		//System.out.pridigitntln("digit: "+digit);
-        		//System.out.println("temp: "+temp);
-        		//check if prime
-        		if(!digitsList.contains(digit)&&!isPrime(digit)){
-        			//System.out.println("broke");
-        			//digitsList.add(digit);
-        			break;
-        		}else{
-        			digitsList.add(digit);
-        		};
-        		temp = temp/10;
-        	}
-        	if(i >= 10 && temp == 0 && i > max){
-        			max = i;
-        			//System.out.println("max:"+max);
-        	}
-        	else if(temp == 0 && i > max && isPrime(digit)){
-        			max = i;
-        	}
-        }
-        System.out.println("max: "+max);
-        return max;
-    }
-    
-private static boolean isPrime(long digit) {
-		
-		Map<Long, Boolean> mapData = new HashMap<>();
-		mapData.put((long) 1, false);
-		mapData.put((long) 2, true);
-		mapData.put((long) 3, true);
-		mapData.put((long) 4, false);
-		mapData.put((long) 5, true);
-		mapData.put((long) 6, false);
-		mapData.put((long) 7, true);
-		mapData.put((long) 8, false);
-		mapData.put((long) 9, false);
-		mapData.put((long) 0, false);
-				
-		return mapData.get(digit);
+		return 0;
 	}
 }
